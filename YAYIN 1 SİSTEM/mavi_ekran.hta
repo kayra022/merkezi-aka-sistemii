@@ -1,0 +1,188 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="x-ua-compatible" content="ie=9">
+<meta charset="utf-8">
+<title>Mavi Ekran</title>
+<HTA:APPLICATION
+    ID="oBsod"
+    APPLICATIONNAME="MaviEkran"
+    SHOWINTASKBAR="no"
+    SINGLEINSTANCE="yes"
+    BORDER="none"
+    BORDERSTYLE="normal"
+    CAPTION="no"
+    SYSMENU="no"
+    MAXIMIZEBUTTON="no"
+    MINIMIZEBUTTON="no"
+    SCROLL="no"
+    CONTEXTMENU="no"
+    SELECTION="no"
+    INNERBORDER="no"
+    NAVIGABLE="no"
+    WINDOWSTATE="maximize"
+    ICON="">
+<style type="text/css">
+    html, body {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background-color: #0078D7;
+        cursor: none;
+    }
+    #sarmal {
+        position: absolute;
+        top: 10%;
+        left: 9%;
+        width: 82%;
+        color: #ffffff;
+        font-family: "Segoe UI Light", "Segoe UI", Arial, sans-serif;
+    }
+    #yuz {
+        font-size: 110px;
+        line-height: 100px;
+        font-weight: normal;
+        margin-bottom: 28px;
+    }
+    #baslik {
+        font-size: 26px;
+        line-height: 36px;
+        max-width: 820px;
+        margin-bottom: 18px;
+    }
+    #aciklama {
+        font-size: 16px;
+        line-height: 25px;
+        max-width: 760px;
+        margin-bottom: 30px;
+    }
+    #yuzde {
+        font-size: 16px;
+        margin-bottom: 55px;
+    }
+    #altbilgi {
+        position: absolute;
+        bottom: 9%;
+        left: 9%;
+        width: 82%;
+        color: #ffffff;
+        font-family: "Segoe UI", Arial, sans-serif;
+    }
+    #qrSatir {
+        display: table;
+        margin-bottom: 14px;
+    }
+    #qr {
+        display: table-cell;
+        width: 110px;
+        height: 110px;
+        background-color: #ffffff;
+        vertical-align: middle;
+        text-align: center;
+        color: #0078D7;
+        font-size: 9px;
+        font-family: Consolas, monospace;
+        line-height: 10px;
+        padding: 4px;
+    }
+    #hataKodu {
+        display: table-cell;
+        vertical-align: middle;
+        padding-left: 20px;
+        font-size: 13px;
+        line-height: 20px;
+    }
+    #durum {
+        position: absolute;
+        bottom: 2%;
+        left: 9%;
+        font-size: 12px;
+        color: #cfe3fb;
+        font-family: Consolas, "Segoe UI", monospace;
+    }
+</style>
+
+<script language="VBScript">
+Option Explicit
+
+Const SURE_SN = 60   ' ekran kac saniye sonra kendiliginden kapansin
+
+Dim yuzde, sayac
+
+Sub YuzdeArtir()
+    If yuzde < 100 Then
+        yuzde = yuzde + Int(Rnd * 3) + 1
+        If yuzde > 100 Then yuzde = 100
+        document.getElementById("yuzde").innerText = yuzde & "% tamamlandı"
+    End If
+End Sub
+
+Sub SayacIslet()
+    sayac = sayac - 1
+    If sayac <= 0 Then
+        window.close
+        Exit Sub
+    End If
+    document.getElementById("durum").innerText = "Otomatik kapanış: " & sayac & " sn   |   Çıkmak için ESC"
+End Sub
+
+Sub TusKontrol()
+    Dim k
+    k = window.event.keyCode
+    If k = 27 Then   ' ESC
+        window.close
+    End If
+End Sub
+
+Sub Baslat()
+    Randomize Timer
+    yuzde = 0
+    sayac = SURE_SN
+
+    window.resizeTo screen.width, screen.height
+    window.moveTo 0, 0
+
+    document.getElementById("durum").innerText = "Otomatik kapanış: " & sayac & " sn   |   Çıkmak için ESC"
+
+    window.setInterval "YuzdeArtir", 450, "VBScript"
+    window.setInterval "SayacIslet", 1000, "VBScript"
+
+    window.focus
+End Sub
+</script>
+<script language="VBScript" for="window" event="onload">
+    Baslat
+</script>
+</head>
+
+<body language="VBScript" onkeydown="TusKontrol" onclick="window.focus">
+    <div id="sarmal">
+        <div id="yuz">:(</div>
+        <div id="baslik">Bilgisayarınızda bir sorun oluştu ve yeniden başlatılması gerekiyor.</div>
+        <div id="aciklama">Sadece birkaç bilgi topluyoruz, ardından sizin için yeniden başlatacağız. (Toplanan bilginin yüzde oranı için aşağıya bakın)</div>
+        <div id="yuzde">0% tamamlandı</div>
+    </div>
+
+    <div id="altbilgi">
+        <div id="qrSatir">
+            <div id="qr">
+                ▓▓▓▓▓▓▓▓▓▓<br>
+                ▓&nbsp;&nbsp;▓▓&nbsp;&nbsp;▓<br>
+                ▓&nbsp;▓▓▓▓▓&nbsp;▓<br>
+                ▓&nbsp;▓▓▓▓▓&nbsp;▓<br>
+                ▓&nbsp;&nbsp;▓▓&nbsp;&nbsp;▓<br>
+                ▓▓▓▓▓▓▓▓▓▓
+            </div>
+            <div id="hataKodu">
+                Daha fazla bilgi için bu web sitesini ziyaret edebilirsiniz:<br>
+                <b>https://www.windows.com/stopcode</b><br><br>
+                Durdurma kodu: CRITICAL_PROCESS_DIED
+            </div>
+        </div>
+    </div>
+
+    <div id="durum"></div>
+</body>
+</html>

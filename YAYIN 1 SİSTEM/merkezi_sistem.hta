@@ -1,0 +1,759 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Merkezi Sistem</title>
+<HTA:APPLICATION
+    ID="oHTA"
+    APPLICATIONNAME="MerkeziSistem"
+    SHOWINTASKBAR="yes"
+    SINGLEINSTANCE="yes"
+    BORDER="thin"
+    BORDERSTYLE="normal"
+    CAPTION="yes"
+    SYSMENU="yes"
+    MAXIMIZEBUTTON="no"
+    MINIMIZEBUTTON="yes"
+    SCROLL="no"
+    CONTEXTMENU="no"
+    SELECTION="no"
+    INNERBORDER="no"
+    NAVIGABLE="no"
+    WINDOWSTATE="normal">
+<style type="text/css">
+    html, body {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background-color: #0d1117;
+        color: #c9d1d9;
+        font-family: "Segoe UI", Consolas, Arial, sans-serif;
+    }
+    #panel {
+        padding: 16px 20px;
+    }
+    h1 {
+        margin: 0 0 4px 0;
+        font-size: 17px;
+        letter-spacing: 3px;
+        color: #58a6ff;
+        text-transform: uppercase;
+        text-align: center;
+    }
+    .alt {
+        text-align: center;
+        font-size: 11px;
+        color: #6e7681;
+        margin-bottom: 14px;
+    }
+    .kart {
+        background-color: #161b22;
+        border: 1px solid #30363d;
+        border-radius: 8px;
+        padding: 10px 14px;
+        margin-bottom: 10px;
+        text-align: center;
+    }
+    .etiket {
+        font-size: 11px;
+        letter-spacing: 2px;
+        color: #8b949e;
+        text-transform: uppercase;
+    }
+    .sayi {
+        font-family: Consolas, "Courier New", monospace;
+        font-size: 46px;
+        font-weight: bold;
+        line-height: 54px;
+    }
+    #kHata { border-left: 4px solid #30363d; }
+    #kKoruma { border-left: 4px solid #3fb950; }
+    #sHata { color: #8b949e; }
+    #sKoruma { color: #3fb950; }
+    .tuslar {
+        margin-bottom: 10px;
+        font-size: 12px;
+        color: #8b949e;
+        text-align: center;
+        white-space: nowrap;
+    }
+    .tusGrup {
+        display: inline-block;
+        margin: 0 8px;
+        vertical-align: middle;
+    }
+    .tus {
+        display: inline-block;
+        min-width: 18px;
+        padding: 2px 7px;
+        margin-right: 5px;
+        background-color: #21262d;
+        border: 1px solid #484f58;
+        border-bottom: 2px solid #484f58;
+        border-radius: 4px;
+        color: #f0f6fc;
+        font-family: Consolas, monospace;
+        font-weight: bold;
+        text-align: center;
+        vertical-align: middle;
+    }
+    #log {
+        height: 92px;
+        overflow: hidden;
+        background-color: #010409;
+        border: 1px solid #30363d;
+        border-radius: 8px;
+        padding: 8px 10px;
+        font-family: Consolas, "Courier New", monospace;
+        font-size: 12px;
+        line-height: 17px;
+        text-align: left;
+        color: #8b949e;
+    }
+    #log .yeni { color: #58a6ff; font-weight: bold; }
+    #log .ok   { color: #3fb950; font-weight: bold; }
+    #log .kotu { color: #f85149; font-weight: bold; }
+    .toplu {
+        margin-bottom: 0;
+        text-align: center;
+    }
+    #adet, #kadet {
+        width: 56px;
+        margin: 0 6px;
+        padding: 4px 6px;
+        background-color: #010409;
+        color: #f0f6fc;
+        border: 1px solid #484f58;
+        font-family: Consolas, monospace;
+        font-size: 14px;
+        text-align: center;
+    }
+    #btnToplu {
+        width: 80px;
+        padding: 4px 8px;
+        background-color: #da3633;
+        color: #ffffff;
+        border: 1px solid #f85149;
+        font-family: Consolas, monospace;
+        font-weight: bold;
+        cursor: pointer;
+    }
+    #btnKapat {
+        width: 380px;
+        height: 40px;
+        margin: 0 0 10px 0;
+        background-color: #238636;
+        color: #ffffff;
+        border: 1px solid #3fb950;
+        font-family: "Segoe UI", Consolas, sans-serif;
+        font-size: 16px;
+        font-weight: bold;
+        letter-spacing: 3px;
+        cursor: pointer;
+    }
+    #btnKoruma {
+        width: 140px;
+        margin-left: 6px;
+        padding: 4px 8px;
+        background-color: #1f6feb;
+        color: #ffffff;
+        border: 1px solid #58a6ff;
+        font-family: Consolas, monospace;
+        font-weight: bold;
+        cursor: pointer;
+    }
+    #btnMavi {
+        width: 160px;
+        height: 24px;
+        margin-top: 6px;
+        background-color: #21262d;
+        color: #8ec3f0;
+        border: 1px solid #39506b;
+        font-family: Consolas, "Segoe UI", sans-serif;
+        font-size: 11px;
+        font-weight: normal;
+        letter-spacing: 1px;
+        cursor: pointer;
+    }
+    #odak {
+        position: absolute;
+        left: -200px;
+        top: 0;
+        width: 1px;
+        height: 1px;
+        border: 0;
+        padding: 0;
+        background: transparent;
+    }
+</style>
+
+<script language="VBScript">
+Option Explicit
+
+Const MAKS_LOG = 6
+Const TARAMA_MS = 400
+Const MAKS_TOPLU = 200        ' tek seferde en fazla kac pencere (istersen degistir)
+Const MAKS_KORUMA = 99999    ' tek seferde eklenebilecek en fazla koruma
+Const TOPLU_ARALIK_MS = 100   ' pencereler arasi bekleme (ms)
+Const PENCERE_BASLIK = "Merkezi Sistem"
+
+Dim sh, fso, wmi
+Dim koruma, aktifHata, oncekiHata
+Dim klasor, kaosYol, bsodYol
+Dim wmiHazir, taramaMesgul
+Dim logSatirlari(5), logSayisi
+Dim topluKalan, topluIstenen, topluAcilan, topluEngel, topluAktif
+Dim eski   ' panel acilmadan once zaten acik olan kaos pencerelerinin PID listesi
+
+' -------------------------------------------------------------
+' Yardimci fonksiyonlar
+' -------------------------------------------------------------
+Function Iki(n)
+    Iki = Right("0" & CStr(n), 2)
+End Function
+
+Function Zaman()
+    Zaman = Iki(Hour(Now)) & ":" & Iki(Minute(Now)) & ":" & Iki(Second(Now))
+End Function
+
+Sub LogEkle(mesaj, sinif)
+    Dim i, html
+    ' Eski kayitlari bir asagi kaydir (en yeni en ustte)
+    If logSayisi < MAKS_LOG Then logSayisi = logSayisi + 1
+    For i = logSayisi - 1 To 1 Step -1
+        logSatirlari(i) = logSatirlari(i - 1)
+    Next
+    logSatirlari(0) = "<span class='" & sinif & "'>[" & Zaman() & "] " & mesaj & "</span>"
+
+    html = ""
+    For i = 0 To logSayisi - 1
+        html = html & logSatirlari(i) & "<br>"
+    Next
+    document.getElementById("log").innerHTML = html
+End Sub
+
+Sub EkraniGuncelle()
+    document.getElementById("sHata").innerText = CStr(aktifHata)
+    document.getElementById("sKoruma").innerText = CStr(koruma)
+
+    If aktifHata > 0 Then
+        document.getElementById("sHata").style.color = "#f85149"
+        document.getElementById("kHata").style.borderLeftColor = "#f85149"
+    Else
+        document.getElementById("sHata").style.color = "#8b949e"
+        document.getElementById("kHata").style.borderLeftColor = "#30363d"
+    End If
+
+    If koruma > 0 Then
+        document.getElementById("sKoruma").style.color = "#3fb950"
+    Else
+        document.getElementById("sKoruma").style.color = "#6e7681"
+    End If
+End Sub
+
+' -------------------------------------------------------------
+' kaos_ekrani.hta dosyasinin yolunu bul
+' -------------------------------------------------------------
+Function KlasorBul()
+    Dim s, ls, pos, bas, q, sp, yol, p
+
+    KlasorBul = ""
+    On Error Resume Next
+
+    ' 1) HTA komut satirindan
+    s = oHTA.commandLine
+    If Err.Number = 0 And Len(s) > 0 Then
+        ls = LCase(s)
+        pos = InStrRev(ls, "merkezi_sistem.hta")
+        If pos > 0 Then
+            q = InStrRev(s, """", pos)
+            sp = InStrRev(s, " ", pos)
+            If q > sp Then bas = q Else bas = sp
+            yol = Mid(s, bas + 1, pos - bas - 1)
+            If Right(yol, 1) = "\" Then yol = Left(yol, Len(yol) - 1)
+            If Len(yol) > 0 Then
+                If fso.FolderExists(yol) Then
+                    KlasorBul = yol
+                    Exit Function
+                End If
+            End If
+        End If
+    End If
+    Err.Clear
+
+    ' 2) document.location.pathname
+    p = document.location.pathname
+    If Len(p) > 0 Then
+        If Left(p, 1) = "/" Then p = Mid(p, 2)
+        p = Replace(p, "/", "\")
+        p = Replace(p, "%20", " ")
+        yol = fso.GetParentFolderName(p)
+        If Len(yol) > 0 Then
+            If fso.FolderExists(yol) Then
+                KlasorBul = yol
+                Exit Function
+            End If
+        End If
+    End If
+    Err.Clear
+
+    ' 3) Gecerli calisma klasoru
+    KlasorBul = sh.CurrentDirectory
+End Function
+
+' -------------------------------------------------------------
+' Odak (focus) yonetimi
+' -------------------------------------------------------------
+Sub OdakVer()
+    On Error Resume Next
+    window.focus
+    sh.AppActivate PENCERE_BASLIK
+    document.getElementById("odak").focus
+    Err.Clear
+End Sub
+
+Sub OdakSerisi()
+    ' Yeni hata penceresi cikinca odagi geri almak icin birkac deneme
+    OdakVer
+    window.setTimeout "OdakVer", 120, "VBScript"
+    window.setTimeout "OdakVer", 300, "VBScript"
+    window.setTimeout "OdakVer", 600, "VBScript"
+    window.setTimeout "OdakVer", 1000, "VBScript"
+End Sub
+
+' -------------------------------------------------------------
+' Tus islemleri
+' -------------------------------------------------------------
+' Donus: 0 = acildi, 1 = koruma engelledi, 2 = hata
+Function HataFirlatTek()
+    If koruma > 0 Then
+        koruma = koruma - 1
+        EkraniGuncelle
+        HataFirlatTek = 1
+        Exit Function
+    End If
+
+    If Not fso.FileExists(kaosYol) Then
+        HataFirlatTek = 2
+        Exit Function
+    End If
+
+    On Error Resume Next
+    ' 4 = SW_SHOWNOACTIVATE : pencereyi aktif etmeden goster
+    sh.Run "mshta.exe """ & kaosYol & """", 4, False
+    If Err.Number <> 0 Then
+        Err.Clear
+        HataFirlatTek = 2
+    Else
+        HataFirlatTek = 0
+    End If
+End Function
+
+Sub HataTetikle()
+    Dim r
+    r = HataFirlatTek()
+    Select Case r
+        Case 0
+            LogEkle "Hata penceresi fırlatıldı", "yeni"
+            OdakSerisi
+        Case 1
+            LogEkle "Koruma Devrede, hata engellendi", "ok"
+        Case Else
+            LogEkle "kaos_ekrani.hta başlatılamadı / bulunamadı!", "kotu"
+    End Select
+End Sub
+
+Sub TopluFirlat()
+    Dim s, n
+    If topluAktif Then Exit Sub
+
+    s = Trim(document.getElementById("adet").value)
+    If Len(s) = 0 Then
+        LogEkle "Bir sayı gir", "kotu"
+        Exit Sub
+    End If
+    If Not IsNumeric(s) Then
+        LogEkle "Geçerli bir sayı gir", "kotu"
+        Exit Sub
+    End If
+
+    n = CDbl(s)
+    If n < 1 Then
+        LogEkle "Sayı en az 1 olmalı", "kotu"
+        Exit Sub
+    End If
+    If n > MAKS_TOPLU Then
+        LogEkle "En fazla " & MAKS_TOPLU & " girebilirsin", "kotu"
+        Exit Sub
+    End If
+
+    n = Int(n)
+    topluIstenen = n
+    topluKalan = n
+    topluAcilan = 0
+    topluEngel = 0
+    topluAktif = True
+    document.getElementById("btnToplu").disabled = True
+    LogEkle n & " hata fırlatılıyor...", "yeni"
+    window.setTimeout "TopluAdim", 10, "VBScript"
+End Sub
+
+Sub TopluAdim()
+    Dim r
+    If topluKalan <= 0 Then
+        TopluBitir
+        Exit Sub
+    End If
+
+    r = HataFirlatTek()
+    topluKalan = topluKalan - 1
+
+    Select Case r
+        Case 0
+            topluAcilan = topluAcilan + 1
+        Case 1
+            topluEngel = topluEngel + 1
+        Case Else
+            LogEkle "Başlatma hatası, işlem durduruldu", "kotu"
+            topluKalan = 0
+    End Select
+
+    document.getElementById("btnToplu").value = CStr(topluAcilan + topluEngel) & "/" & CStr(topluIstenen)
+    window.setTimeout "TopluAdim", TOPLU_ARALIK_MS, "VBScript"
+End Sub
+
+Sub TopluBitir()
+    topluAktif = False
+    document.getElementById("btnToplu").disabled = False
+    document.getElementById("btnToplu").value = "FIRLAT"
+    LogEkle "Bitti: " & topluAcilan & " açıldı, " & topluEngel & " engellendi", "ok"
+    OdakSerisi
+End Sub
+
+Sub KorumaTopluEkle()
+    Dim s, n
+    s = Trim(document.getElementById("kadet").value)
+    If Len(s) = 0 Then
+        LogEkle "Koruma için bir sayı gir", "kotu"
+        Exit Sub
+    End If
+    If Not IsNumeric(s) Then
+        LogEkle "Geçerli bir sayı gir", "kotu"
+        Exit Sub
+    End If
+
+    n = CDbl(s)
+    If n < 1 Then
+        LogEkle "Sayı en az 1 olmalı", "kotu"
+        Exit Sub
+    End If
+    If n > MAKS_KORUMA Then
+        LogEkle "En fazla " & MAKS_KORUMA & " girebilirsin", "kotu"
+        Exit Sub
+    End If
+
+    n = Int(n)
+    koruma = koruma + n
+    EkraniGuncelle
+    LogEkle n & " koruma eklendi (Toplam: " & koruma & ")", "ok"
+    OdakVer
+End Sub
+
+Sub BodyTik()
+    Dim id
+    id = ""
+    On Error Resume Next
+    id = window.event.srcElement.id
+    Err.Clear
+    On Error GoTo 0
+    If id = "adet" Or id = "kadet" Then Exit Sub
+    OdakVer
+End Sub
+
+Sub KorumaEkle()
+    koruma = koruma + 1
+    EkraniGuncelle
+    LogEkle "Koruma eklendi (Toplam: " & koruma & ")", "ok"
+    OdakVer
+End Sub
+
+Sub TusBasildi()
+    Dim k, kaynak
+    k = window.event.keyCode
+
+    ' Sayi kutusuna yazarken 1 ve 2 tuslari islem tetiklemesin
+    kaynak = ""
+    On Error Resume Next
+    kaynak = window.event.srcElement.id
+    Err.Clear
+    On Error GoTo 0
+    If kaynak = "adet" Then
+        If k = 13 Then TopluFirlat
+        Exit Sub
+    End If
+    If kaynak = "kadet" Then
+        If k = 13 Then KorumaTopluEkle
+        Exit Sub
+    End If
+
+    LogEkle "Tuş algılandı (kod: " & k & ")", "yeni"
+    Select Case k
+        Case 49, 97   ' ust siradaki 1 ve numpad 1
+            window.event.returnValue = False
+            HataTetikle
+        Case 50, 98   ' ust siradaki 2 ve numpad 2
+            window.event.returnValue = False
+            KorumaEkle
+        Case 51, 99   ' ust siradaki 3 ve numpad 3
+            window.event.returnValue = False
+            TumunuKapat
+        Case 52, 100  ' ust siradaki 4 ve numpad 4
+            window.event.returnValue = False
+            MaviEkranTetikle
+    End Select
+End Sub
+
+' -------------------------------------------------------------
+' Canli pencere takibi (WMI)
+' -------------------------------------------------------------
+Function KaosMu(cmd)
+    ' cmd kucuk harfe cevrilmis komut satiri
+    KaosMu = (InStr(cmd, "kaos_ekrani.hta") > 0) And (InStr(cmd, "merkezi_sistem.hta") = 0)
+End Function
+
+Sub EskiPencereleriBul()
+    Dim kol, p, cmd, n, ilk
+    n = 0
+    ilk = ""
+    On Error Resume Next
+    Set kol = wmi.ExecQuery("SELECT ProcessId, CommandLine FROM Win32_Process WHERE Name='mshta.exe'")
+    If Err.Number <> 0 Then
+        Err.Clear
+        Exit Sub
+    End If
+    For Each p In kol
+        cmd = LCase(p.CommandLine & "")
+        If KaosMu(cmd) Then
+            eski(CStr(p.ProcessId)) = True
+            n = n + 1
+            If ilk = "" Then ilk = p.CommandLine & ""
+        End If
+        Err.Clear
+    Next
+    On Error GoTo 0
+    If n > 0 Then
+        ilk = Replace(Replace(Right(ilk, 60), "<", "&lt;"), ">", "&gt;")
+        LogEkle "Önceden açık " & n & " pencere bulundu, sayılmıyor", "kotu"
+        LogEkle "İlk süreç: ..." & ilk, "kotu"
+    End If
+End Sub
+
+Sub Tara()
+    Dim kol, p, cmd, n
+
+    If taramaMesgul Then Exit Sub
+    If Not wmiHazir Then Exit Sub
+    taramaMesgul = True
+
+    On Error Resume Next
+    Set kol = wmi.ExecQuery("SELECT ProcessId, CommandLine FROM Win32_Process WHERE Name='mshta.exe'")
+    If Err.Number <> 0 Then
+        Err.Clear
+        taramaMesgul = False
+        Exit Sub
+    End If
+
+    n = 0
+    For Each p In kol
+        cmd = LCase(p.CommandLine & "")
+        ' Sadece kaos_ekrani.hta pencereleri; panelin kendisi ve eskiden kalanlar sayilmaz
+        If KaosMu(cmd) Then
+            If Not eski.Exists(CStr(p.ProcessId)) Then n = n + 1
+        End If
+        Err.Clear
+    Next
+
+    oncekiHata = aktifHata
+    aktifHata = n
+
+    If aktifHata <> oncekiHata Then
+        If aktifHata < oncekiHata Then
+            If aktifHata = 0 Then
+                LogEkle "Tüm hata pencereleri kapandı", "ok"
+            Else
+                LogEkle "Bir hata penceresi kapatıldı (Kalan: " & aktifHata & ")", "ok"
+            End If
+        End If
+        EkraniGuncelle
+    End If
+
+    Set kol = Nothing
+    taramaMesgul = False
+End Sub
+
+Sub MaviEkranTetikle()
+    If Not fso.FileExists(bsodYol) Then
+        LogEkle "mavi_ekran.hta bulunamadı!", "kotu"
+        Exit Sub
+    End If
+
+    On Error Resume Next
+    sh.Run "mshta.exe """ & bsodYol & """", 1, False
+    If Err.Number <> 0 Then
+        LogEkle "Mavi ekran başlatılamadı: " & Err.Description, "kotu"
+        Err.Clear
+        Exit Sub
+    End If
+    On Error GoTo 0
+
+    LogEkle "Mavi ekran efekti tetiklendi (60 sn)", "yeni"
+    ' Not: burada bilerek OdakSerisi cagrilmiyor; mavi ekran tam ekran
+    ' gelsin ve panel onun ARKASINDA kalsin.
+End Sub
+
+Sub TumunuKapat()
+    Dim kol, p, cmd, n
+
+    ' Devam eden toplu firlatmayi durdur
+    topluKalan = 0
+
+    If Not wmiHazir Then
+        LogEkle "WMI erişilemedi, kapatılamadı", "kotu"
+        Exit Sub
+    End If
+
+    n = 0
+    On Error Resume Next
+    Set kol = wmi.ExecQuery("SELECT ProcessId, CommandLine FROM Win32_Process WHERE Name='mshta.exe'")
+    If Err.Number <> 0 Then
+        Err.Clear
+        LogEkle "Süreç listesi alınamadı", "kotu"
+        Exit Sub
+    End If
+
+    For Each p In kol
+        cmd = LCase(p.CommandLine & "")
+        If KaosMu(cmd) Then
+            p.Terminate
+            If Err.Number = 0 Then n = n + 1
+            Err.Clear
+        End If
+    Next
+    eski.RemoveAll
+    On Error GoTo 0
+
+    LogEkle n & " hata penceresi kapatıldı", "ok"
+    OdakSerisi
+End Sub
+
+' -------------------------------------------------------------
+' Baslangic
+' -------------------------------------------------------------
+Sub Baslat()
+    Dim g, y
+
+    window.resizeTo 430, 670
+    g = (screen.availWidth - 430) \ 2
+    y = (screen.availHeight - 670) \ 2
+    If g < 0 Then g = 0
+    If y < 0 Then y = 0
+    window.moveTo g, y
+
+    Set sh = CreateObject("WScript.Shell")
+    Set fso = CreateObject("Scripting.FileSystemObject")
+
+    koruma = 0
+    aktifHata = 0
+    oncekiHata = 0
+    logSayisi = 0
+    taramaMesgul = False
+    topluAktif = False
+    Set eski = CreateObject("Scripting.Dictionary")
+
+    klasor = KlasorBul()
+    kaosYol = klasor & "\kaos_ekrani.hta"
+    bsodYol = klasor & "\mavi_ekran.hta"
+
+    ' WMI baglantisi (bir kez kurulur)
+    wmiHazir = False
+    On Error Resume Next
+    Set wmi = GetObject("winmgmts:{impersonationLevel=impersonate}!\\.\root\cimv2")
+    If Err.Number = 0 Then
+        wmiHazir = True
+    Else
+        Err.Clear
+    End If
+    On Error GoTo 0
+
+    EkraniGuncelle
+    LogEkle "Sistem hazır. Aktif hata: 0", "ok"
+    If Not fso.FileExists(kaosYol) Then
+        LogEkle "UYARI: kaos_ekrani.hta aynı klasörde yok!", "kotu"
+    End If
+    If Not fso.FileExists(bsodYol) Then
+        LogEkle "UYARI: mavi_ekran.hta aynı klasörde yok!", "kotu"
+    End If
+    If Not wmiHazir Then
+        LogEkle "UYARI: WMI erişilemedi, canlı takip kapalı", "kotu"
+    End If
+
+    LogEkle "Tuş dinleme aktif (1 / 2 / 3 / 4)", "ok"
+    If wmiHazir Then EskiPencereleriBul
+
+    ' 400 ms'de bir canli tarama
+    window.setInterval "Tara", TARAMA_MS, "VBScript"
+
+    OdakVer
+End Sub
+</script>
+<script language="VBScript" for="window" event="onload">
+    Baslat
+</script>
+<script language="VBScript" for="document" event="onkeydown">
+    TusBasildi
+</script>
+</head>
+
+<body language="VBScript" onclick="BodyTik">
+<input type="text" id="odak" readonly="readonly">
+<div id="panel">
+    <h1>&#9889; Merkezi Sistem</h1>
+    <div class="alt">KONTROL PANELİ v1.0</div>
+
+    <div class="kart" id="kHata">
+        <div class="etiket">Ekrandaki Aktif Hata</div>
+        <div class="sayi" id="sHata">0</div>
+    </div>
+
+    <div class="kart" id="kKoruma">
+        <div class="etiket">Aktif Koruma Sayısı</div>
+        <div class="sayi" id="sKoruma">0</div>
+    </div>
+
+    <div style="text-align:center;">
+        <input type="button" id="btnKapat" value="KAPAT" title="Tüm hata pencerelerini kapat" language="VBScript" onclick="TumunuKapat">
+    </div>
+
+    <div class="tuslar"><span class="tusGrup"><span class="tus" style="cursor:pointer" language="VBScript" onclick="HataTetikle">1</span>Hata</span><span class="tusGrup"><span class="tus" style="cursor:pointer" language="VBScript" onclick="KorumaEkle">2</span>Koruma</span><span class="tusGrup"><span class="tus" style="cursor:pointer" language="VBScript" onclick="TumunuKapat">3</span>Kapat</span><span class="tusGrup"><span class="tus" style="cursor:pointer" language="VBScript" onclick="MaviEkranTetikle">4</span>Mavi</span></div>
+
+    <div class="etiket" style="margin-bottom:5px;">Son Durum</div>
+    <div id="log"></div>
+
+    <div class="etiket" style="margin:10px 0 5px 0;">Toplu İşlem</div>
+    <div class="toplu">
+        <input type="text" id="adet" value="100" maxlength="3" title="Kaç hata penceresi açılsın?">
+        <input type="button" id="btnToplu" value="FIRLAT" language="VBScript" onclick="TopluFirlat">
+    </div>
+    <div class="toplu" style="margin-top:8px;">
+        <input type="text" id="kadet" value="10" maxlength="5" title="Kaç koruma eklensin?">
+        <input type="button" id="btnKoruma" value="KORUMA EKLE" language="VBScript" onclick="KorumaTopluEkle">
+    </div>
+
+    <div style="text-align:center; margin-top:6px;">
+        <input type="button" id="btnMavi" value="Mavi Ekran" title="60 saniyelik mavi ekran efekti" language="VBScript" onclick="MaviEkranTetikle">
+    </div>
+</div>
+</body>
+</html>
